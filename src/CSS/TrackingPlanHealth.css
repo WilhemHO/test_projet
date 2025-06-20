@@ -1,0 +1,202 @@
+/* TrackingPlanHealth.css - Version harmonisée */
+:root {
+    --error-color: #e74c3c;
+    --success-color: #27ae60;
+    --text-dark: #2c3e50;
+    --text-medium: #34495e;
+    --border-light: #ecf0f1;
+    --accent-color: #817EE1;
+    
+    /* Dark mode variables */
+    --dark-primary: #7E57C2;
+    --dark-bg: rgba(30, 0, 60, 0.85);
+    --dark-text: #E1D5F5;
+    --dark-border: rgba(126, 87, 194, 0.2);
+}
+
+.tracking-container {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .tracking-container {
+    color: var(--dark-text);
+}
+  
+.tracking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: 15px;
+}
+
+[data-theme="dark"] .tracking-header {
+    border-bottom: 2px solid var(--dark-border);
+}
+  
+.tracking-header h1 {
+    color: var(--text-dark);
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+[data-theme="dark"] .tracking-header h1 {
+    color: var(--dark-text);
+}
+  
+.tracking-header input {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 250px;
+}
+
+[data-theme="dark"] .tracking-header input {
+    background-color: rgba(69, 39, 160, 0.2);
+    border: 1px solid var(--dark-border);
+    color: var(--dark-text);
+}
+  
+.tracking-overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+  
+.tracking-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+[data-theme="dark"] .tracking-section {
+    background-color: rgba(69, 39, 160, 0.15);
+    border: 1px solid var(--dark-border);
+    box-shadow: 0 2px 10px rgba(103, 58, 183, 0.1);
+}
+  
+.tracking-section h2 {
+    color: var(--text-medium);
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+[data-theme="dark"] .tracking-section h2 {
+    color: var(--dark-text);
+    border-bottom: 1px solid var(--dark-border);
+}
+  
+.tracking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+  
+.tracking-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--text-medium);
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 2px solid var(--border-light);
+}
+
+[data-theme="dark"] .tracking-table th {
+    background-color: rgba(69, 39, 160, 0.3);
+    color: var(--dark-text);
+    border-bottom: 2px solid var(--dark-border);
+}
+  
+.tracking-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .tracking-table td {
+    color: var(--dark-text);
+    border-bottom: 1px solid var(--dark-border);
+}
+  
+.tracking-table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+[data-theme="dark"] .tracking-table tr:hover td {
+    background-color: rgba(69, 39, 160, 0.2);
+}
+  
+.tracking-graph {
+    height: 300px;
+    margin-top: 20px;
+}
+  
+/* Styles de statut */
+.status-indicator {
+    font-weight: bold;
+    white-space: nowrap;
+}
+  
+.status-error {
+    color: var(--error-color);
+}
+  
+.status-ok {
+    color: var(--success-color);
+}
+  
+/* Liens */
+.tracking-table a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+[data-theme="dark"] .tracking-table a {
+    color: var(--dark-primary);
+}
+  
+.tracking-table a:hover {
+    text-decoration: underline;
+}
+  
+/* Responsive */
+@media (max-width: 768px) {
+    .tracking-overview {
+      grid-template-columns: 1fr;
+    }
+    
+    .tracking-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    
+    .tracking-header input {
+      width: 100%;
+    }
+    
+    .tracking-table {
+      font-size: 13px;
+    }
+    
+    .tracking-table th, 
+    .tracking-table td {
+      padding: 8px 10px;
+    }
+}

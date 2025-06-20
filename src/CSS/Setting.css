@@ -1,0 +1,219 @@
+/* Setting.css - Styles spécifiques à la page des paramètres */
+
+:root {
+    --setting-primary: #611fcd;
+    --setting-primary-light: rgba(97, 31, 205, 0.1);
+    --setting-text: #333;
+    --setting-light-text: #888;
+    --setting-border: #eee;
+    --setting-hover-bg: #f9f9f9;
+    --setting-bg: white;
+    --setting-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --setting-avatar-bg: #f0f0f0;
+    --setting-error: #e74c3c;
+    --setting-success: #27ae60;
+  
+    /* Dark mode variables */
+    --dark-setting-primary: #7E57C2;
+    --dark-setting-primary-light: rgba(126, 87, 194, 0.2);
+    --dark-setting-text: #E1D5F5;
+    --dark-setting-light-text: #B39DDB;
+    --dark-setting-border: rgba(126, 87, 194, 0.2);
+    --dark-setting-hover-bg: rgba(69, 39, 160, 0.3);
+    --dark-setting-bg: rgb(51 8 92);
+    --dark-setting-shadow: 0 2px 10px rgba(103, 58, 183, 0.1);
+    --dark-setting-avatar-bg: rgba(69, 39, 160, 0.5);
+  }
+  
+  [data-theme="dark"] {
+    --setting-primary: var(--dark-setting-primary);
+    --setting-primary-light: var(--dark-setting-primary-light);
+    --setting-text: var(--dark-setting-text);
+    --setting-light-text: var(--dark-setting-light-text);
+    --setting-border: var(--dark-setting-border);
+    --setting-hover-bg: var(--dark-setting-hover-bg);
+    --setting-bg: var(--dark-setting-bg);
+    --setting-shadow: var(--dark-setting-shadow);
+    --setting-avatar-bg: var(--dark-setting-avatar-bg);
+  }
+  
+  .settings-container {
+    font-family: Arial, sans-serif;
+    width: 35%; /* Prend toute la largeur disponible */
+    margin: auto;
+    padding: 20px;
+    color: var(--setting-text);
+    background-color: var(--setting-bg);
+    border-radius: 8px;
+    box-shadow: var(--setting-shadow);
+}
+  
+  .settings-header {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .settings-header h1 {
+    color: var(--setting-primary);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+  }
+  
+  .settings-header p {
+    color: var(--setting-light-text);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  
+  .profile-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--setting-border);
+  }
+  
+  .avatar-container {
+    position: relative;
+    margin-right: 20px;
+  }
+  
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--setting-avatar-bg);
+  }
+  
+  .avatar-upload-label {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--setting-primary);
+    color: white;
+    padding: 1px 3px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .avatar-upload-label:hover {
+    background-color: var(--setting-primary);
+    opacity: 0.9;
+  }
+  
+  .avatar-upload-input {
+    display: none;
+  }
+  
+  .profile-info h2 {
+    margin: 0 0 5px 0;
+    color: var(--setting-text);
+    font-size: 1.3rem;
+  }
+  
+  .profile-info p {
+    margin: 0;
+    color: var(--setting-light-text);
+    font-size: 0.9rem;
+  }
+  
+  .settings-options {
+    display: grid;
+    gap: 25px;
+  }
+  
+  .settings-group {
+    background-color: var(--setting-bg);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--setting-shadow);
+  }
+  
+  .settings-group h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--setting-primary);
+    font-size: 1.1rem;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--setting-border);
+  }
+  
+  .theme-switcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--setting-primary-light);
+    border: none;
+    border-radius: 6px;
+    color: var(--setting-text);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .theme-switcher:hover {
+    background-color: var(--setting-hover-bg);
+  }
+  
+  .theme-switcher.light {
+    background-color: var(--setting-primary-light);
+  }
+  
+  .theme-switcher.dark {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .settings-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: var(--setting-primary-light);
+    border: none;
+    border-radius: 6px;
+    color: var(--setting-text);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    gap: 10px;
+  }
+  
+  .settings-button:hover {
+    background-color: var(--setting-hover-bg);
+  }
+  
+  .settings-button.logout {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--setting-error);
+  }
+  
+  .settings-button.logout:hover {
+    background-color: rgba(231, 76, 60, 0.2);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .profile-section {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .avatar-container {
+      margin-right: 0;
+      margin-bottom: 15px;
+    }
+    
+    .settings-container {
+      padding: 15px;
+    }
+    
+    .settings-group {
+      padding: 15px;
+    }
+  }

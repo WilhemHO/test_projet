@@ -1,0 +1,122 @@
+/* styles.css */
+:root {
+    --sidebar-width: 280px;
+    --primary-color: #610fcd;
+    --secondary-color: #f8f9fc;
+    --text-color: #333;
+    --light-text: #6c757d;
+    
+    /* Dark mode variables */
+    --dark-bg: #1A0033;
+    --dark-primary: #7E57C2;
+    --dark-secondary: rgba(30, 0, 60, 0.85);
+    --dark-text: #E1D5F5;
+    --dark-light-text: #B39DDB;
+    --theme-icon: '🌙';
+}
+
+[data-theme="dark"] {
+    --primary-color: var(--dark-primary);
+    --secondary-color: var(--dark-secondary);
+    --text-color: var(--dark-text);
+    --light-text: var(--dark-light-text);
+    --theme-icon: '☀️';
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--secondary-color);
+}
+
+[data-theme="dark"] .app {
+    background-color: var(--dark-bg);
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background-color: var(--secondary-color);
+}
+
+[data-theme="dark"] .main-content {
+    background-color: rgba(26, 0, 51, 0.9);
+}
+
+.main-header h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.main-header p {
+    color: var(--light-text);
+}
+
+.content-section {
+    margin: 30px 0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Cards */
+.course-card,
+.lesson-card,
+.mentor-card,
+.chart-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .course-card,
+[data-theme="dark"] .lesson-card,
+[data-theme="dark"] .mentor-card,
+[data-theme="dark"] .chart-container {
+    background: rgba(69, 39, 160, 0.15);
+    color: var(--dark-text);
+    box-shadow: 0 2px 5px rgba(103, 58, 183, 0.2);
+    border: 1px solid rgba(126, 87, 194, 0.2);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    font-size: 14px;
+}
+
+.theme-toggle:hover {
+    opacity: 0.9;
+}
+
+[data-theme="dark"] .theme-toggle {
+    background: var(--dark-primary);
+}

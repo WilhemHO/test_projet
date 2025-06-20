@@ -1,0 +1,286 @@
+:root {
+    /* Light theme variables */
+    --sidebar-width: 250px;
+    --primary-color: #611fcd;
+    --primary-light: rgba(97, 31, 205, 0.1);
+    --light-text: #888;
+    --border-color: #eee;
+    --hover-bg: #f9f9f9;
+    --sidebar-bg: white;
+    --sidebar-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    --avatar-bg: #f0f0f0;
+    --scrollbar-track: #f1f1f1;
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --text-color: inherit;
+    --logo-url: url('../logo/logo.png');
+    
+    /* Dark theme variables */
+    --dark-primary: #7E57C2;
+    --dark-primary-light: rgba(126, 87, 194, 0.2);
+    --dark-light-text: #B39DDB;
+    --dark-border: #4527A0;
+    --dark-hover-bg: rgba(69, 39, 160, 0.3);
+    --dark-sidebar-bg: rgb(51 8 92);
+    --dark-sidebar-shadow: 0 0 10px rgba(103, 58, 183, 0.3);
+    --dark-avatar-bg: rgba(69, 39, 160, 0.5);
+    --dark-scrollbar-track: rgba(30, 0, 60, 0.7);
+    --dark-scrollbar-thumb: rgba(126, 87, 194, 0.5);
+    --dark-text-color: #E1D5F5;
+    --dark-logo-url: url('../logo/logo_dark.png');
+}
+  
+[data-theme="dark"] {
+    --primary-color: var(--dark-primary);
+    --primary-light: var(--dark-primary-light);
+    --light-text: var(--dark-light-text);
+    --border-color: var(--dark-border);
+    --hover-bg: var(--dark-hover-bg);
+    --sidebar-bg: var(--dark-sidebar-bg);
+    --sidebar-shadow: var(--dark-sidebar-shadow);
+    --avatar-bg: var(--dark-avatar-bg);
+    --scrollbar-track: var(--dark-scrollbar-track);
+    --scrollbar-thumb: var(--dark-scrollbar-thumb);
+    --text-color: var(--dark-text-color);
+    --logo-url: var(--dark-logo-url);
+}
+
+/* Logo styles */
+.logo-image {
+    width: 150px;
+    height: 40px; /* Ajustez selon la hauteur de votre logo */
+    background-image: var(--logo-url);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+  /* Ajoutez ces styles dans sidebar.css */
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+    margin-bottom: 10px;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--avatar-bg);
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--light-text);
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 2px;
+  }
+  
+  .user-role {
+    font-size: 0.75rem;
+    color: var(--light-text);
+    background-color: var(--primary-light);
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    width: fit-content;
+  }
+
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width); 
+    max-width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    box-shadow: var(--sidebar-shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+  
+.sidebar-header {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+  
+.sidebar-header h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin: 0;
+}
+  
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+  
+.menu-section {
+    margin-bottom: 20px;
+}
+  
+.section-title {
+    color: var(--light-text);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+  
+.menu-item {
+    display: block;
+    padding: 12px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 2px 0;
+}
+  
+.menu-item:hover {
+    color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+  
+.menu-item.active {
+    color: var(--primary-color);
+    font-weight: 600;
+    background-color: var(--primary-light);
+    position: relative;
+}
+  
+.menu-item.active::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%;
+    width: 4px;
+    background-color: var(--primary-color);
+    border-radius: 0 4px 4px 0;
+}
+  
+.friend-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    transition: all 0.2s ease;
+}
+  
+.friend-item:hover {
+    background-color: var(--hover-bg);
+    border-radius: 6px;
+    padding-left: 10px;
+}
+  
+.friend-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--avatar-bg);
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--light-text);
+}
+  
+.friend-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+  
+.friend-status {
+    font-size: 0.75rem;
+    color: var(--light-text);
+    margin-top: 2px;
+}
+  
+.sidebar-footer {
+    margin-top: auto;
+    padding: 15px 0 0 0;
+    border-top: 1px solid var(--border-color);
+}
+  
+.settings-section {
+    margin-bottom: 0;
+}
+  
+.settings-item {
+    padding: 10px 0;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 8px;
+    color: var(--text-color);
+}
+  
+.settings-item:hover {
+    color: var(--primary-color);
+}
+  
+.settings-item::before {
+    content: '⚙️';
+    font-size: 14px;
+}
+  
+.settings-item:last-child::before {
+    content: '🚪';
+}
+  
+/* Scrollbar styling */
+.sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+  
+.sidebar-content::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 3px;
+}
+  
+.sidebar-content::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+  
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+}
+  
+/* Animation for menu items */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+  
+.menu-section > * {
+    animation: fadeIn 0.3s ease forwards;
+}
+  
+.menu-section > *:nth-child(2) { animation-delay: 0.1s; }
+.menu-section > *:nth-child(3) { animation-delay: 0.2s; }
+.menu-section > *:nth-child(4) { animation-delay: 0.3s; }
+.menu-section > *:nth-child(5) { animation-delay: 0.4s; }
