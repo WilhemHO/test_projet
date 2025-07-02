@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../CSS/Setting.css';
+import { useNavigate } from 'react-router-dom';
 
 function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
   const [profilePhoto, setProfilePhoto] = useState(
@@ -7,6 +8,7 @@ function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
     user.photoURL || 
     'https://www.anecdote-du-jour.com/wp-content/images/2009/02/homer-simpson-mg.jpg'
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (profilePhoto) {
@@ -37,6 +39,11 @@ function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   return (
@@ -87,7 +94,7 @@ function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
             🔄 Changer de compte
           </button>
           <button 
-            onClick={onLogout} 
+            onClick={handleLogout} 
             className="settings-button logout"
           >
             🚪 Se déconnecter

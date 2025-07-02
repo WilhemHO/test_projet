@@ -99,7 +99,7 @@ const Graphique = () => {
   return (
     <div className="chart-container">
       <div className="chart-controls">
-        <h2>Visualisation des Données</h2>
+        <h2 style={{ fontFamily: 'Bebas Neue, cursive' }}>Visualisation des Données</h2>
         
         <div className="chart-type-selector">
           <label>Sélectionnez le type de graphique : </label>

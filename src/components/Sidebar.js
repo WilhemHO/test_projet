@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import '../CSS/sidebar.css';
 
 function Sidebar() {
@@ -7,6 +7,7 @@ function Sidebar() {
     localStorage.getItem('profilePhoto') || 
     'https://www.anecdote-du-jour.com/wp-content/images/2009/02/homer-simpson-mg.jpg'
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleProfilePhotoChange = () => {
@@ -24,6 +25,11 @@ function Sidebar() {
       window.removeEventListener('profilePhotoChanged', handleProfilePhotoChange);
     };
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <div className="sidebar">
@@ -49,10 +55,10 @@ function Sidebar() {
         
         <div className="menu-section">
           <div className="section-title">OVERVIEW</div>
-          <Link to="/" className="menu-item">Dashboard</Link>
-          <Link to="/realtime-monitoring" className="menu-item">Realtime Monitoring</Link>
-          <Link to="/event-anomaly" className="menu-item">Event Anomaly</Link>
-          <Link to="/tracking-plan-health" className="menu-item">Tracking Plan Health</Link>
+          <NavLink to="/" className={({ isActive }) => "menu-item" + (isActive ? " active" : "")}>Dashboard</NavLink>
+          <NavLink to="/realtime-monitoring" className={({ isActive }) => "menu-item" + (isActive ? " active" : "")}>Realtime Monitoring</NavLink>
+          <NavLink to="/event-anomaly" className={({ isActive }) => "menu-item" + (isActive ? " active" : "")}>Event Anomaly</NavLink>
+          <NavLink to="/tracking-plan-health" className={({ isActive }) => "menu-item" + (isActive ? " active" : "")}>Tracking Plan Health</NavLink>
         </div>
       </div>
       
@@ -60,7 +66,7 @@ function Sidebar() {
         <div className="menu-section settings-section">
           <div className="section-title">SETTINGS</div>
           <Link to="/setting" className="settings-item">Setting</Link>
-          <div className="settings-item">Logout</div>
+          <div className="settings-item" onClick={handleLogout} style={{ cursor: 'pointer', fontWeight: 600 }}>Logout</div>
         </div>
       </div>
     </div>

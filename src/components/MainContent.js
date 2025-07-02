@@ -1,325 +1,532 @@
 // components/MainContent.js
-import React from 'react';
-import Graphique from './Graphique';
+import React, { useEffect, useState } from 'react';
+import DateRangePicker from './DateRangePicker';
+import DateRangeDropdown from './DateRangeDropdown';
 
 function MainContent() {
+  const [metrics, setMetrics] = useState(null);
+  const [eventStats, setEventStats] = useState([]);
+  const [parametersAnalysis, setParametersAnalysis] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState(() => {
+    const today = new Date();
+    const end = today.toISOString().split('T')[0];
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+    const start = startDate.toISOString().split('T')[0];
+    return { start, end };
+  });
+  const [selectedMood, setSelectedMood] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`http://localhost:4000/api/dashboard?start=${dateRange.start}&end=${dateRange.end}`)
+      .then(res => res.json())
+      .then(data => {
+        setMetrics(data.metrics);
+        setEventStats(data.eventStats);
+        setParametersAnalysis(data.parametersAnalysis || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Erreur lors du chargement des données');
+        setLoading(false);
+      });
+  }, [dateRange]);
+
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>{error}</div>;
+  if (!metrics) return <div>Aucune donnée à afficher.</div>;
+
   return (
-    <div className="main-content">
-      <header className="main-header">
-        <div className="welcome-container">
-          <h1>Bienvenue Hamis !</h1>
-          <p className="welcome-message">Tableau de bord des événements</p>
+    <div className="main-content" style={{ position: 'relative', background: '#f6f3fa', minHeight: '100vh', paddingBottom: 40 }}>
+      {/* Header + Date Selector */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '32px 0 0 0' }}>
+        <div>
+          <h1 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '2.2rem', fontWeight: 700, color: '#4c2885', marginBottom: 2 }}>Bienvenue Hamis !</h1>
+          <div style={{ color: '#b197d2', fontSize: '1.05rem', fontWeight: 400, marginBottom: 0 }}>Tableau de bord des événements</div>
         </div>
-        <div className="date-display">
-          {new Date().toLocaleDateString('fr-FR', { 
-            weekday: 'long', 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
-          })}
-        </div>
-      </header>
-
-      <div className="stats-summary">
-        <div className="stat-card success">
-          <h3>Événements traités avec succès</h3>
-          <p className="stat-value">863 700</p>
-          <p className="stat-percentage">37,2% du total</p>
-        </div>
-        <div className="stat-card error">
-          <h3>Événements en échec</h3>
-          <p className="stat-value">1 474 224</p>
-          <p className="stat-percentage">63,5% du total</p>
-        </div>
-        <div className="stat-card highlight">
-          <h3>Taux d'échec</h3>
-          <p className="stat-value">63,5%</p>
-          <div className="trend-indicator negative">↑ 2,1% vs hier</div>
-        </div>
-        <div className="stat-card">
-          <h3>Dernière actualisation</h3>
-          <p className="stat-value">10:59</p>
-          <p className="stat-meta">Temps réel</p>
-        </div>
-      </div>
-
-      <div className="content-section">
-        <div className="section-header">
-          <h2>Analyse des événements</h2>
-          <div className="time-filter">
-            <button className="active">24h</button>
-            <button>7j</button>
-            <button>30j</button>
-            <button>Personnalisé</button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+          
+          <DateRangeDropdown value={dateRange} onChange={setDateRange} />
+          <div className="last-update-info" style={{ fontSize: '0.95rem', color: '#b197d2', marginTop: 2, fontWeight: 400 }}>
+            Dernière actualisation : {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} (Temps réel)
           </div>
         </div>
-        
-        <div className="graphiques-grid">
-          <Graphique title="Événements par heure" type="line" />
-          <Graphique title="Répartition des erreurs" type="donut" />
-          <Graphique title="Tendance du taux d'échec" type="area" />
-          <Graphique title="Top 5 des erreurs" type="bar" />
+      </div>
+
+      {/* Section humeur */}
+      <div style={{ margin: '32px 0 0 0', display: 'flex', alignItems: 'center', gap: 18 }}>
+        <h2 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.35rem', fontWeight: 700, color: '#2d204a', margin: 0 }}>Comment vas-tu aujourd'hui ?</h2>
+        {['🙂', '😐', '🙁'].map((emoji, idx) => (
+          <span
+            key={emoji}
+            className={`mood-emoji${selectedMood === idx ? ' selected' : ''}`}
+            style={{
+              fontSize: 28,
+              marginLeft: idx === 0 ? 8 : 2,
+              cursor: 'pointer',
+              transition: 'transform 0.15s, box-shadow 0.15s, background 0.15s',
+              background: selectedMood === idx ? '#ede9fe' : 'transparent',
+              borderRadius: '50%',
+              boxShadow: selectedMood === idx ? '0 2px 8px #b197d2' : 'none',
+              transform: selectedMood === idx ? 'scale(1.18)' : 'scale(1)'
+            }}
+            onClick={() => setSelectedMood(idx)}
+          >
+            {emoji}
+          </span>
+        ))}
+      </div>
+
+      {/* Cartes résumé */}
+      <div className="stats-summary-cards" style={{ gridTemplateColumns: 'repeat(5, 1fr)', marginTop: 24, gap: 24 }}>
+        <div className="stat-card success">
+          <div className="stat-card-title">ÉVÉNEMENTS TRAITÉS AVEC SUCCÈS</div>
+          <div className="stat-card-value">{metrics?.good_events?.toLocaleString() ?? '-'}</div>
+          <div className="stat-card-sub">{metrics?.total_events ? ((metrics.good_events / metrics.total_events) * 100).toFixed(1) + '% du total' : '-'}</div>
+        </div>
+        <div className="stat-card error">
+          <div className="stat-card-title">ÉVÉNEMENTS EN ÉCHEC</div>
+          <div className="stat-card-value">{metrics?.error_events?.toLocaleString() ?? '-'}</div>
+          <div className="stat-card-sub">{metrics?.total_events ? ((metrics.error_events / metrics.total_events) * 100).toFixed(1) + '% du total' : '-'}</div>
+        </div>
+        <div className="stat-card highlight">
+          <div className="stat-card-title">TAUX D'ÉCHEC</div>
+          <div className="stat-card-value">{metrics?.error_rate !== undefined ? metrics.error_rate.toFixed(1) + '%' : '-'}</div>
+          <div className="stat-card-sub">
+            <span className="trend-indicator negative">↑ 2,1% vs hier</span>
+          </div>
+        </div>
+        <div className="stat-card info">
+          <div className="stat-card-title">TOTAL EVENTS</div>
+          <div className="stat-card-value">{metrics?.total_events?.toLocaleString() ?? '-'}</div>
+          <div className="stat-card-sub">Sur la période</div>
+        </div>
+        <div className="stat-card info">
+          <div className="stat-card-title">UNIQUE USERS</div>
+          <div className="stat-card-value">{metrics?.unique_users?.toLocaleString() ?? '-'}</div>
+          <div className="stat-card-sub">Sur la période</div>
         </div>
       </div>
 
-      <style jsx>{`
-        .main-content {
-          padding: 24px;
-          background-color: #f8fafc;
-          min-height: 100vh;
-          font-family: 'Segoe UI', Roboto, sans-serif;
+      {/* Statistiques par événements */}
+      <div className="content-section" style={{ marginTop: 36 }}>
+        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <h2 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.18rem', fontWeight: 700, color: '#2d204a', margin: 0 }}>Statistiques par événements</h2>
+        </div>
+        <div className="event-stats-table-wrapper">
+          <table className="event-stats-table">
+            <thead>
+              <tr>
+                <th>EVENT</th>
+                <th>HITS</th>
+                <th>HITS WITH ERRORS</th>
+                <th>%ERRORS</th>
+                <th>DATA QUALITY</th>
+              </tr>
+            </thead>
+            <tbody>
+              {eventStats.map((ev, idx) => (
+                <tr key={ev.event_name} className={idx % 2 === 0 ? 'even-row' : ''}>
+                  <td className="event-name">{ev.event_name}</td>
+                  <td className="number">{ev.hits.toLocaleString()}</td>
+                  <td className="number">{ev.hits_with_errors.toLocaleString()}</td>
+                  <td className={`number ${ev.error_percentage > 50 ? 'danger' : ev.error_percentage > 10 ? 'warning' : 'success'}`}>{ev.error_percentage.toFixed(1)}%</td>
+                  <td>
+                    <span className={`quality-badge ${ev.data_quality.replace(/ /g, '-').toLowerCase()}`}>{ev.data_quality}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Analyse des paramètres */}
+      <div className="content-section" style={{ marginTop: 36 }}>
+        <div className="section-header" style={{ marginBottom: 8 }}>
+          <h2 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.18rem', fontWeight: 700, color: '#2d204a', margin: 0 }}>Analyse des paramètres</h2>
+        </div>
+        <div className="parameters-analysis-list">
+          {parametersAnalysis.map(param => (
+            <div key={param.param_name} className={`param-row ${param.status.toLowerCase()}`}
+              style={{ borderLeft: `6px solid ${param.status === 'Critique' ? '#ef4444' : param.status === 'Attention' ? '#f59e42' : param.status === 'Warning' ? '#fbbf24' : '#10b981'}` }}>
+              <div className="param-main">
+                <span className={`param-name ${param.status.toLowerCase()}`}>{param.param_name}</span>
+                <span className={`param-type-badge ${param.param_type.toLowerCase()}`}>{param.param_type === 'User' ? 'User' : 'Event'}</span>
+              </div>
+              <div className="param-bar-container">
+                <div className="param-bar-bg">
+                  <div
+                    className={`param-bar-fill ${param.status.toLowerCase()}`}
+                    style={{ width: `${param.missing_percentage}%` }}
+                  />
+                </div>
+                <span className="param-bar-label">
+                  {param.missing_percentage.toFixed(1)}% ({param.events_with_missing_param} / {param.total_events})
+                </span>
+              </div>
+              <div className={`param-status-badge ${param.status.toLowerCase()}`}>{param.status}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Styles supplémentaires pour la maquette */}
+      <style>{`
+        .main-content { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }
+        .period-btn {
+          border: none;
+          border-radius: 8px;
+          padding: 6px 16px;
+          font-weight: 600;
+          font-size: 1rem;
+          background: #f3f0fa;
+          color: #7c3aed;
+          cursor: pointer;
+          transition: background 0.15s;
         }
-        
-        [data-theme="dark"] .main-content {
-          background-color: rgba(30, 0, 60, 0.85);
-          color: #E1D5F5;
+        .period-btn.selected, .period-btn:hover {
+          background: #ede9fe;
+          color: #7c3aed;
         }
-        
-        .main-header {
+        .period-btn:not(.selected) {
+          color: #a78bfa;
+          background: #f6f3fa;
+        }
+        .stats-summary-cards {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 24px;
+          margin: 32px 0;
+        }
+        .stat-card {
+          background: #fff;
+          border-radius: 20px;
+          box-shadow: 0 2px 12px rgba(30, 60, 90, 0.06);
+          padding: 32px 24px 24px 24px;
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 32px;
-          padding-bottom: 16px;
-          border-bottom: 1px solid #e2e8f0;
+          flex-direction: column;
+          align-items: flex-start;
+          border-top: 5px solid #e5e7eb;
+          min-width: 0;
+          min-height: 160px;
         }
-        
-        [data-theme="dark"] .main-header {
-          border-bottom: 1px solid rgba(126, 87, 194, 0.2);
+        .stat-card-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: #b197d2;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+          letter-spacing: 1px;
+          min-height: 50px;
         }
-        
+        .stat-card-value {
+          font-size: 1.7rem;
+          font-weight: 700;
+          color: #4c2885;
+          margin-bottom: 8px;
+          font-variant-numeric: tabular-nums;
+        }
+        .stat-card-sub {
+          font-size: 1rem;
+          color: #bdb6d5;
+          font-weight: 500;
+        }
+        .stat-card.success { border-top: 5px solid #817EE1; }
+        .stat-card.error { border-top: 5px solid #817EE1; }
+        .stat-card.highlight { border-top: 5px solid #817EE1; }
+        .stat-card.info { border-top: 5px solid #817EE1; }
+        .trend-indicator.negative {
+          background: #fee2e2;
+          color: #ef4444;
+          border-radius: 12px;
+          padding: 2px 10px;
+          font-size: 0.95rem;
+          font-weight: 600;
+          margin-top: 4px;
+          display: inline-block;
+        }
+        .date-display-top {
+          position: absolute;
+          right: 32px;
+          top: 32px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(30, 60, 90, 0.06);
+          padding: 12px 24px;
+          font-size: 1.15rem;
+          color: #475569;
+          font-weight: 600;
+        }
+        .main-header {
+          position: relative;
+          margin-bottom: 24px;
+        }
         .welcome-container h1 {
-          font-size: 28px;
+          font-size: 2.2rem;
           font-weight: 700;
           color: #1e293b;
           margin-bottom: 4px;
         }
-        
-        [data-theme="dark"] .welcome-container h1 {
-          color: #E1D5F5;
-        }
-        
         .welcome-message {
           color: #64748b;
-          font-size: 16px;
+          font-size: 1.1rem;
           margin: 0;
         }
-        
-        [data-theme="dark"] .welcome-message {
-          color: #B39DDB;
+        .event-stats-table-wrapper {
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 2px 12px rgba(30, 60, 90, 0.06);
+          padding: 24px;
+          margin-top: 24px;
+          overflow-x: auto;
         }
-        
-        .date-display {
-          background-color: #ffffff;
-          padding: 8px 16px;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          color: #475569;
-          font-weight: 500;
-        }
-        
-        [data-theme="dark"] .date-display {
-          background-color: rgba(69, 39, 160, 0.2);
-          color: #E1D5F5;
-          box-shadow: 0 1px 3px rgba(103, 58, 183, 0.1);
-        }
-        
-        .stats-summary {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-          margin-bottom: 32px;
-        }
-        
-        .stat-card {
-          background-color: white;
-          border-radius: 12px;
-          padding: 20px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          transition: transform 0.2s;
-          position: relative;
+        .event-stats-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+          font-size: 1.05rem;
+          border-radius: 16px;
           overflow: hidden;
         }
-        
-        [data-theme="dark"] .stat-card {
-          background-color: rgba(69, 39, 160, 0.15);
-          box-shadow: 0 1px 3px rgba(103, 58, 183, 0.1);
-          border: 1px solid rgba(126, 87, 194, 0.2);
+        .event-stats-table th, .event-stats-table td {
+          padding: 12px 16px;
+          text-align: left;
         }
-        
-        .stat-card.success {
-          border-top: 4px solid #10b981;
-        }
-        
-        .stat-card.error {
-          border-top: 4px solid #ef4444;
-        }
-        
-        .stat-card.highlight {
-          border-top: 4px solid #6366f1;
-          background-color: #f8fafc;
-        }
-        
-        [data-theme="dark"] .stat-card.highlight {
-          background-color: rgba(69, 39, 160, 0.3);
-        }
-        
-        .stat-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        [data-theme="dark"] .stat-card:hover {
-          box-shadow: 0 4px 6px rgba(103, 58, 183, 0.2);
-        }
-        
-        .stat-card h3 {
-          color: #64748b;
-          font-size: 14px;
-          margin-top: 0;
-          margin-bottom: 12px;
-          font-weight: 600;
+        .event-stats-table th {
+          background: #f3f0fa;
+          color: #7c3aed;
+          font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          border-bottom: 2px solid #e5e7eb;
         }
-        
-        [data-theme="dark"] .stat-card h3 {
-          color: #B39DDB;
+        .event-stats-table tbody tr {
+          border-bottom: 1px solid #e5e7eb;
+          transition: background 0.15s;
         }
-        
-        .stat-value {
-          font-size: 28px;
-          font-weight: 700;
-          color: #1e293b;
-          margin: 0 0 8px 0;
+        .event-stats-table tbody tr.even-row {
+          background: #faf7fd;
         }
-        
-        [data-theme="dark"] .stat-value {
-          color: #E1D5F5;
+        .event-stats-table tbody tr:hover {
+          background: #f6f3fa;
         }
-        
-        .stat-percentage, .stat-meta {
-          font-size: 14px;
-          color: #64748b;
-          margin: 0;
-        }
-        
-        [data-theme="dark"] .stat-percentage,
-        [data-theme="dark"] .stat-meta {
-          color: #B39DDB;
-        }
-        
-        .trend-indicator {
-          display: inline-block;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 12px;
+        .event-stats-table .event-name {
           font-weight: 600;
-          margin-top: 8px;
+          color: #6366f1;
         }
-        
-        .trend-indicator.negative {
-          background-color: #fee2e2;
-          color: #dc2626;
+        .event-stats-table .number {
+          text-align: right;
+          font-variant-numeric: tabular-nums;
         }
-        
-        [data-theme="dark"] .trend-indicator.negative {
-          background-color: rgba(220, 38, 38, 0.2);
+        .event-stats-table .danger {
+          color: #ef4444;
+          font-weight: 700;
         }
-        
-        .content-section {
-          background-color: white;
+        .event-stats-table .warning {
+          color: #f59e42;
+          font-weight: 700;
+        }
+        .event-stats-table .success {
+          color: #10b981;
+          font-weight: 700;
+        }
+        .quality-badge {
+          display: inline-block;
+          padding: 4px 12px;
           border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          margin-bottom: 24px;
+          font-size: 0.95rem;
+          font-weight: 600;
+          background: #f1f5f9;
+          color: #64748b;
         }
-        
-        [data-theme="dark"] .content-section {
-          background-color: rgba(69, 39, 160, 0.15);
-          border: 1px solid rgba(126, 87, 194, 0.2);
-          box-shadow: 0 1px 3px rgba(103, 58, 183, 0.1);
+        .quality-badge.good {
+          background: #dcfce7;
+          color: #15803d;
         }
-        
-        .section-header {
+        .quality-badge.warning {
+          background: #fef9c3;
+          color: #b45309;
+        }
+        .quality-badge.need-attention {
+          background: #fee2e2;
+          color: #b91c1c;
+        }
+        .parameters-analysis-list {
           display: flex;
-          justify-content: space-between;
+          flex-direction: column;
+          gap: 18px;
+          margin-top: 18px;
+        }
+        .param-row {
+          display: flex;
           align-items: center;
-          margin-bottom: 24px;
+          background: #fff;
+          border-radius: 14px;
+          box-shadow: 0 2px 8px rgba(30, 60, 90, 0.06);
+          padding: 18px 24px;
+          gap: 24px;
+          border-left: 6px solid #e5e7eb;
+          transition: border-color 0.2s, background 0.2s;
         }
-        
-        .section-header h2 {
-          font-size: 20px;
-          color: #1e293b;
-          margin: 0;
+        .param-main {
+          flex: 1 1 200px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
-        
-        [data-theme="dark"] .section-header h2 {
+        .param-name {
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin-right: 8px;
+        }
+        .param-type-badge {
+          font-size: 0.95rem;
+          font-weight: 600;
+          border-radius: 8px;
+          padding: 2px 10px;
+          background: #f1f5f9;
+          color: #64748b;
+          text-transform: capitalize;
+        }
+        .param-type-badge.event { background: #e0e7ff; color: #3730a3; }
+        .param-type-badge.user { background: #fef9c3; color: #92400e; }
+        .param-type-badge.item { background: #dcfce7; color: #065f46; }
+        .param-bar-container {
+          flex: 2 1 300px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .param-bar-bg {
+          background: #e5e7eb;
+          border-radius: 8px;
+          width: 120px;
+          height: 12px;
+          overflow: hidden;
+          margin-right: 8px;
+        }
+        .param-bar-fill {
+          height: 100%;
+          border-radius: 8px;
+          transition: width 0.3s;
+        }
+        .param-bar-fill.critique { background: #ef4444; }
+        .param-bar-fill.attention { background: #f59e42; }
+        .param-bar-fill.warning { background: #fbbf24; }
+        .param-bar-fill.bon { background: #10b981; }
+        .param-bar-label {
+          font-size: 0.98rem;
+          color: #64748b;
+          min-width: 90px;
+        }
+        .param-status-badge {
+          font-size: 1rem;
+          font-weight: 700;
+          border-radius: 8px;
+          padding: 4px 16px;
+          text-transform: uppercase;
+          margin-left: auto;
+          color: #fff;
+        }
+        .param-status-badge.critique { background: #ef4444; }
+        .param-status-badge.attention { background: #f59e42; color: #92400e; }
+        .param-status-badge.warning { background: #fbbf24; color: #92400e; }
+        .param-status-badge.bon { background: #10b981; }
+        [data-theme="dark"] .main-content {
+          background: #181028;
           color: #E1D5F5;
         }
-        
-        .time-filter button {
-          background: none;
-          border: none;
-          padding: 6px 12px;
-          margin-left: 8px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-          color: #64748b;
-          transition: all 0.2s;
+        [data-theme="dark"] .stat-card {
+          background: #231a3a;
+          color: #E1D5F5;
+          box-shadow: 0 2px 12px rgba(30, 60, 90, 0.12);
+          border-top-color: #7c3aed;
         }
-        
-        [data-theme="dark"] .time-filter button {
+        [data-theme="dark"] .stat-card.success { border-top-color: #22d3ee; }
+        [data-theme="dark"] .stat-card.error { border-top-color: #f87171; }
+        [data-theme="dark"] .stat-card.highlight { border-top-color: #818cf8; }
+        [data-theme="dark"] .stat-card.info { border-top-color: #38bdf8; }
+        [data-theme="dark"] .stat-card-title {
+          color: #B39DDB;
+          min-height: 50px;
+        }
+        [data-theme="dark"] .stat-card-value {
+          color: #E1D5F5;
+          font-size: 1.7rem;
+          font-variant-numeric: tabular-nums;
+        }
+        [data-theme="dark"] .stat-card-sub {
+          color: #a3a3c2;
+        }
+        [data-theme="dark"] .date-display-top {
+          background: #231a3a;
+          color: #E1D5F5;
+          box-shadow: 0 2px 8px rgba(103, 58, 183, 0.15);
+        }
+        [data-theme="dark"] .event-stats-table-wrapper {
+          background: #231a3a;
+          box-shadow: 0 2px 12px rgba(103, 58, 183, 0.12);
+        }
+        [data-theme="dark"] .event-stats-table th {
+          background: #2d204a;
+          color: #B39DDB;
+          border-bottom: 2px solid #3b2c5a;
+        }
+        [data-theme="dark"] .event-stats-table td {
+          color: #E1D5F5;
+        }
+        [data-theme="dark"] .event-stats-table tbody tr {
+          border-bottom: 1px solid #3b2c5a;
+        }
+        [data-theme="dark"] .event-stats-table tbody tr:hover {
+          background: #2d204a;
+        }
+        [data-theme="dark"] .event-stats-table .event-name {
+          color: #a5b4fc;
+        }
+        [data-theme="dark"] .quality-badge {
+          background: #2d204a;
           color: #B39DDB;
         }
-        
-        .time-filter button:hover {
-          background-color: #f1f5f9;
+        [data-theme="dark"] .quality-badge.good {
+          background: #134e4a;
+          color: #5eead4;
         }
-        
-        [data-theme="dark"] .time-filter button:hover {
-          background-color: rgba(69, 39, 160, 0.3);
+        [data-theme="dark"] .quality-badge.warning {
+          background: #78350f;
+          color: #fde68a;
         }
-        
-        .time-filter button.active {
-          background-color: #e2e8f0;
-          color: #1e293b;
-          font-weight: 500;
+        [data-theme="dark"] .quality-badge.need-attention {
+          background: #7f1d1d;
+          color: #fecaca;
         }
-        
-        [data-theme="dark"] .time-filter button.active {
-          background-color: rgba(126, 87, 194, 0.3);
+        [data-theme="dark"] .parameters-analysis-list .param-row {
+          background: #231a3a;
           color: #E1D5F5;
+          box-shadow: 0 2px 8px rgba(103, 58, 183, 0.12);
+          border-left-color: #7c3aed;
         }
-        
-        .graphiques-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 24px;
-          width: 100%;
+        [data-theme="dark"] .param-type-badge {
+          background: #2d204a;
+          color: #B39DDB;
         }
-        
-        @media (max-width: 1024px) {
-          .stats-summary {
-            grid-template-columns: repeat(2, 1fr);
-          }
+        [data-theme="dark"] .param-bar-bg {
+          background: #3b2c5a;
         }
-        
-        @media (max-width: 768px) {
-          .main-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 16px;
-          }
-          
-          .stats-summary {
-            grid-template-columns: 1fr;
-          }
-          
-          .graphiques-grid {
-            grid-template-columns: 1fr;
-          }
+        [data-theme="dark"] .param-bar-label {
+          color: #B39DDB;
+        }
+        .mood-emoji.selected {
+          background: #ede9fe !important;
+          box-shadow: 0 2px 8px #b197d2 !important;
+          transform: scale(1.18) !important;
+        }
+        .mood-emoji {
+          transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
         }
       `}</style>
     </div>

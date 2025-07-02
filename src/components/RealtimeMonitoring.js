@@ -1,229 +1,192 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../CSS/RealtimeMonitoring.css";
 
-
 const RealtimeMonitoring = () => {
-  // Données principales
-  const overviewData = {
-    totalEvents: 200707,
-    missingParams: 200707,
-    hits: 200707,
-    goodHits: 0,
-    errorHits: 200707,
-    userParams: 1
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [showLastUpdated, setShowLastUpdated] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("http://localhost:4000/api/realtime");
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || "Erreur API");
+        setData(json.data);
+        setLastUpdated(new Date());
+      } catch (err) {
+        setError(err.message || "Erreur inconnue");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const getQuality = (percent) => {
+    if (percent === 0) return "Good";
+    if (percent < 10) return "Warning";
+    return "Need Attention";
   };
 
-  // Données des événements
-  const eventsData = [
-    { event: 'view_item_list', hits: 132067, hitsWithErrors: 132067, percentErrors: '100%', quality: 'Need Attention' },
-    { event: 'page_view', hits: 47041, hitsWithErrors: 47041, percentErrors: '100%', quality: 'Need Attention' },
-    { event: 'view_item', hits: 19687, hitsWithErrors: 19687, percentErrors: '100%', quality: 'Need Attention' },
-    { event: 'add_to_cart', hits: 1316, hitsWithErrors: 1316, percentErrors: '100%', quality: 'Need Attention' },
-    { event: 'purchase', hits: 275, hitsWithErrors: 275, percentErrors: '100%', quality: 'Need Attention' },
-    { event: 'begin_checkout', hits: 209, hitsWithErrors: 209, percentErrors: '100%', quality: 'Need Attention' }
-  ];
+  if (loading) return <div className="loading">Chargement des données...</div>;
+  if (error) return <div className="error">Erreur : {error}</div>;
+  if (!data) return null;
 
-  // Pages fréquentes
-  const pageLocations = [
-    { url: 'https://www.mesdemoisellesparis.com/collections/soldes?page=1', percentErrors: '100%', quality: 'Need Attention' },
-    { url: 'http://www.mesdemoisellesparis.com/collections/soldes?page=2', percentErrors: '100%', quality: 'Need Attention' },
-    { url: 'https://www.mesdemoisellesparis.com/collections/soldes?page=3', percentErrors: '100%', quality: 'Need Attention' },
-    { url: 'https://www.mesdemoisellesparis.com/collections/soldes?page=4', percentErrors: '100%', quality: 'Need Attention' },
-    { url: 'https://www.mesdemoisellesparis.com/collections/soldes?page=5', percentErrors: '100%', quality: 'Need Attention' },
-    { url: 'https://www.mesdemoisellesparis.com/collections/soldes?page=6', percentErrors: '100%', quality: 'Need Attention' }
-  ];
+  const overview = {
+    total: data.metrics?.total_hits || 0,
+    good: data.metrics?.good_hits || 0,
+    error: data.metrics?.error_hits || 0,
+    userParams: data.userParamsStats?.length || 0,
+  };
 
-  // Paramètres d'événements manquants
-  const eventParamsData = [
-    { param: 'page_type', occurrences: 200707, percentMissing: '1%', quality: 'Need Attention' },
-    { param: 'page_type_level_1', occurrences: 200432, percentMissing: '1%', quality: 'Need Attention' },
-    { param: 'page_type_level_2', occurrences: 47041, percentMissing: '1%', quality: 'Need Attention' },
-    { param: 'page_type_level_3', occurrences: 19687, percentMissing: '1%', quality: 'Need Attention' },
-    { param: 'customer_id', occurrences: 275, percentMissing: '1%', quality: 'Need Attention' }
-  ];
-
-  // Paramètres utilisateurs
-  const userParamsData = [
-    { param: 'user_id', percentMissing: '5%', quality: 'Need Attention' }
-  ];
-
-  // Paramètres d'items
-  const itemParamsData = [
-    { param: 'item_category', missing: 0, percentMissing: '0%', quality: 'Good', occurrences: 153554 },
-    { param: 'item_id', missing: 0, percentMissing: '0%', quality: 'Good', occurrences: 153554 },
-    { param: 'item_brand', missing: 0, percentMissing: '0%', quality: 'Good', occurrences: 153554 },
-    { param: 'item_name', missing: 0, percentMissing: '0%', quality: 'Good', occurrences: 153554 }
-  ];
+  const renderTable = (title, headers, rows) => (
+    <div className="section">
+      <h2 className="section-title">{title}</h2>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            {headers.map((h) => (
+              <th key={h}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => (
+            <tr key={idx}>
+              {row.map((cell, i) => (
+                <td
+                  key={i}
+                  className={
+                    typeof cell === "string" && cell.includes("Attention")
+                      ? "attention"
+                      : ""
+                  }
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
-    <div className="dashboard-container">
-      <h1>Realtime Monitoring</h1>
-      
-      {/* Section Overview */}
-      <div className="section">
-        <h2>Overview</h2>
-        <p>During this period you had {overviewData.totalEvents.toLocaleString()} events, of which {overviewData.missingParams.toLocaleString()} were missing parameters.</p>
-        
-        <div className="metrics-grid">
-          <div className="metric-card">
-            <h3>Numbers of Hits</h3>
-            <p>{overviewData.hits.toLocaleString()}</p>
+    <div className="dashboard" style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <h1 className="dashboard-title" style={{ margin: 0 }}>Realtime Monitoring</h1>
+        <button
+          className="time-icon-btn"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          onClick={() => setShowLastUpdated((v) => !v)}
+          title="Voir la dernière mise à jour"
+        >
+          {/* Horloge SVG */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </button>
+      </div>
+      {showLastUpdated && lastUpdated && (
+        <div className="last-updated" style={{ marginTop: 4, color: '#555', fontSize: 14 }}>
+          Dernière actualisation : {lastUpdated.toLocaleString()}
+        </div>
+      )}
+
+      <div className="overview-box">
+        <h2 className="section-subtitle">Overview</h2>
+        <p>
+          During this period you had <strong>{overview.total.toLocaleString()}</strong> events, of which <strong>{overview.error.toLocaleString()}</strong> were missing parameters.
+        </p>
+        <div className="overview-grid">
+          <div className="overview-card">
+            <span>Number of Hits</span>
+            <strong>{overview.total.toLocaleString()}</strong>
           </div>
-          <div className="metric-card">
-            <h3>Total Good Hits</h3>
-            <p>{overviewData.goodHits}</p>
+          <div className="overview-card">
+            <span>Total Good Hits</span>
+            <strong>{overview.good.toLocaleString()}</strong>
           </div>
-          <div className="metric-card">
-            <h3>Errors Hits</h3>
-            <p>{overviewData.errorHits.toLocaleString()}</p>
+          <div className="overview-card">
+            <span>Error Hits</span>
+            <strong>{overview.error.toLocaleString()}</strong>
           </div>
-          <div className="metric-card">
-            <h3>User Parameters</h3>
-            <p>{overviewData.userParams}</p>
+          <div className="overview-card">
+            <span>User Parameters</span>
+            <strong>{overview.userParams}</strong>
           </div>
         </div>
       </div>
-      
-      {/* Section Events */}
-      <div className="section">
-        <h2>Events</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Event</th>
-              <th>Hits</th>
-              <th>Hits With Errors</th>
-              <th>%Errors</th>
-              <th>Data Quality</th>
-            </tr>
-          </thead>
-          <tbody>
-            {eventsData.map((event, index) => (
-              <tr key={index}>
-                <td>{event.event}</td>
-                <td>{event.hits.toLocaleString()}</td>
-                <td>{event.hitsWithErrors.toLocaleString()}</td>
-                <td>{event.percentErrors}</td>
-                <td className={`quality-${event.quality.toLowerCase().replace(' ', '-')}`}>
-                  {event.quality}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {renderTable(
+        "Events",
+        ["Event", "Hits", "Hits With Errors", "%Errors", "Data Quality"],
+        (data.eventStats || []).map((e) => [
+          e.event_name,
+          e.hits.toLocaleString(),
+          e.errors.toLocaleString(),
+          `${e.error_percentage.toFixed(1)}%`,
+          getQuality(e.error_percentage),
+        ])
+      )}
+
+      <div style={{ overflowX: 'auto' }}>
+        {renderTable(
+          "Page Location",
+          ["URL", "%Errors", "Data Quality"],
+          (data.pageStats || []).map((p) => [
+            <a 
+              href={p.page_location_value} 
+              target="_blank" 
+              rel="noreferrer"
+              className="page-location-url"
+            >
+              {p.page_location_value}
+            </a>,
+            `${p.error_percentage.toFixed(1)}%`,
+            getQuality(p.error_percentage),
+          ])
+        )}
       </div>
-      
-      {/* Section Page Location - Version tableau */}
-      <div className="section">
-        <h2>Page Location</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>URL</th>
-              <th>%Errors</th>
-              <th>Data Quality</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageLocations.map((page, index) => (
-              <tr key={index}>
-                <td>
-                  <a href={page.url} target="_blank" rel="noopener noreferrer">
-                    {page.url}
-                  </a>
-                </td>
-                <td>{page.percentErrors}</td>
-                <td className={`quality-${page.quality.toLowerCase().replace(' ', '-')}`}>
-                  {page.quality}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Section Event Parameters */}
-      <div className="section">
-        <h2>Event Parameters</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Event Parameters Missing</th>
-              <th>% Event Parameters Missing</th>
-              <th>Data Quality Parameters</th>
-              <th>Occurrences</th>
-            </tr>
-          </thead>
-          <tbody>
-            {eventParamsData.map((param, index) => (
-              <tr key={index}>
-                <td>{param.param}</td>
-                <td>{param.percentMissing}</td>
-                <td className={`quality-${param.quality.toLowerCase().replace(' ', '-')}`}>
-                  {param.quality}
-                </td>
-                <td>{param.occurrences.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Section User Parameters */}
-      <div className="section">
-        <h2>User Parameters</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Event User Missing</th>
-              <th>% Event User Missing</th>
-              <th>Data Quality User</th>
-              <th>Occurrences</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userParamsData.map((param, index) => (
-              <tr key={index}>
-                <td>{param.param}</td>
-                <td>{param.percentMissing}</td>
-                <td className={`quality-${param.quality.toLowerCase().replace(' ', '-')}`}>
-                  {param.quality}
-                </td>
-                <td>{param.percentMissing}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Section Item Parameters */}
-      <div className="section">
-        <h2>Item Parameters</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Item Params</th>
-              <th>Event Items Missing</th>
-              <th>% Items Params Missing</th>
-              <th>Data Quality Items</th>
-              <th>Occurrences</th>
-            </tr>
-          </thead>
-          <tbody>
-            {itemParamsData.map((param, index) => (
-              <tr key={index}>
-                <td>{param.param}</td>
-                <td>{param.missing}</td>
-                <td>{param.percentMissing}</td>
-                <td className={`quality-${param.quality.toLowerCase()}`}>
-                  {param.quality}
-                </td>
-                <td>{param.occurrences.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+      {renderTable(
+        "Events Parameters",
+        ["Event Parameter Missing", "% Missing", "Data Quality", "Occurrences"],
+        (data.eventParamsStats || []).map((param) => [
+          param.param_key,
+          `${param.missing_percentage.toFixed(1)}%`,
+          getQuality(param.missing_percentage),
+          param.total_occurrences.toLocaleString(),
+        ])
+      )}
+
+      {renderTable(
+        "User Parameters",
+        ["Event User Missing", "% Missing", "Data Quality", "Occurrences"],
+        (data.userParamsStats || []).map((param) => [
+          param.param_key,
+          `${param.missing_percentage.toFixed(1)}%`,
+          getQuality(param.missing_percentage),
+          param.total_occurrences.toLocaleString(),
+        ])
+      )}
+
+      {renderTable(
+        "Item Parameters",
+        ["Item Param", "Missing", "% Missing", "Data Quality", "Occurrences"],
+        (data.itemParamsStats || []).map((param) => [
+          param.param_key,
+          param.missing_count,
+          `${param.missing_percentage.toFixed(1)}%`,
+          getQuality(param.missing_percentage),
+          param.total_occurrences.toLocaleString(),
+        ])
+      )}
     </div>
   );
 };

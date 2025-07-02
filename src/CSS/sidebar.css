@@ -240,6 +240,7 @@
   
 .settings-item:hover {
     color: var(--primary-color);
+    text-decoration: underline;
 }
   
 .settings-item::before {
@@ -284,3 +285,11 @@
 .menu-section > *:nth-child(3) { animation-delay: 0.2s; }
 .menu-section > *:nth-child(4) { animation-delay: 0.3s; }
 .menu-section > *:nth-child(5) { animation-delay: 0.4s; }
+
+.sidebar, .user-profile, .user-info, .menu-item, .friend-item, .settings-item {
+    font-family: 'Poppins', sans-serif;
+}
+h1, h2, h3, h4, h5, h6, .sidebar-header h2, .section-title {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.5px;
+}
