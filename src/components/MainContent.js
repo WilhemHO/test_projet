@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import DateRangePicker from './DateRangePicker';
 import DateRangeDropdown from './DateRangeDropdown';
+import { useCache } from "./CacheContext";
 
 function MainContent() {
   const [metrics, setMetrics] = useState(null);
@@ -18,8 +19,18 @@ function MainContent() {
     return { start, end };
   });
   const [selectedMood, setSelectedMood] = useState(null);
+  const { getCacheData, setCacheData } = useCache();
 
   useEffect(() => {
+    const cacheKey = `dashboardData_${dateRange.start}_${dateRange.end}`;
+    const cached = getCacheData(cacheKey);
+    if (cached) {
+      setMetrics(cached.metrics);
+      setEventStats(cached.eventStats);
+      setParametersAnalysis(cached.parametersAnalysis);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     fetch(`http://localhost:4000/api/dashboard?start=${dateRange.start}&end=${dateRange.end}`)
       .then(res => res.json())
@@ -27,6 +38,7 @@ function MainContent() {
         setMetrics(data.metrics);
         setEventStats(data.eventStats);
         setParametersAnalysis(data.parametersAnalysis || []);
+        setCacheData(cacheKey, data);
         setLoading(false);
       })
       .catch(err => {
@@ -40,44 +52,18 @@ function MainContent() {
   if (!metrics) return <div>Aucune donnée à afficher.</div>;
 
   return (
-    <div className="main-content" style={{ position: 'relative', background: '#f6f3fa', minHeight: '100vh', paddingBottom: 40 }}>
+    <div className="main-content" style={{ position: 'relative', minHeight: '100vh', paddingBottom: 40 }}>
       {/* Header + Date Selector */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '32px 0 0 0' }}>
         <div>
-          <h1 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '2.2rem', fontWeight: 700, color: '#4c2885', marginBottom: 2 }}>Bienvenue Hamis !</h1>
+          <h1 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '2.2rem', fontWeight: 700, color: '#4c2885', marginBottom: 2 }}>Bienvenue !</h1>
           <div style={{ color: '#b197d2', fontSize: '1.05rem', fontWeight: 400, marginBottom: 0 }}>Tableau de bord des événements</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
           
           <DateRangeDropdown value={dateRange} onChange={setDateRange} />
-          <div className="last-update-info" style={{ fontSize: '0.95rem', color: '#b197d2', marginTop: 2, fontWeight: 400 }}>
-            Dernière actualisation : {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} (Temps réel)
-          </div>
+          
         </div>
-      </div>
-
-      {/* Section humeur */}
-      <div style={{ margin: '32px 0 0 0', display: 'flex', alignItems: 'center', gap: 18 }}>
-        <h2 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.35rem', fontWeight: 700, color: '#2d204a', margin: 0 }}>Comment vas-tu aujourd'hui ?</h2>
-        {['🙂', '😐', '🙁'].map((emoji, idx) => (
-          <span
-            key={emoji}
-            className={`mood-emoji${selectedMood === idx ? ' selected' : ''}`}
-            style={{
-              fontSize: 28,
-              marginLeft: idx === 0 ? 8 : 2,
-              cursor: 'pointer',
-              transition: 'transform 0.15s, box-shadow 0.15s, background 0.15s',
-              background: selectedMood === idx ? '#ede9fe' : 'transparent',
-              borderRadius: '50%',
-              boxShadow: selectedMood === idx ? '0 2px 8px #b197d2' : 'none',
-              transform: selectedMood === idx ? 'scale(1.18)' : 'scale(1)'
-            }}
-            onClick={() => setSelectedMood(idx)}
-          >
-            {emoji}
-          </span>
-        ))}
       </div>
 
       {/* Cartes résumé */}
@@ -96,7 +82,6 @@ function MainContent() {
           <div className="stat-card-title">TAUX D'ÉCHEC</div>
           <div className="stat-card-value">{metrics?.error_rate !== undefined ? metrics.error_rate.toFixed(1) + '%' : '-'}</div>
           <div className="stat-card-sub">
-            <span className="trend-indicator negative">↑ 2,1% vs hier</span>
           </div>
         </div>
         <div className="stat-card info">
@@ -113,18 +98,19 @@ function MainContent() {
 
       {/* Statistiques par événements */}
       <div className="content-section" style={{ marginTop: 36 }}>
-        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        
+        <div className="event-stats-table-wrapper">
+          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <h2 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.18rem', fontWeight: 700, color: '#2d204a', margin: 0 }}>Statistiques par événements</h2>
         </div>
-        <div className="event-stats-table-wrapper">
           <table className="event-stats-table">
             <thead>
               <tr>
-                <th>EVENT</th>
-                <th>HITS</th>
-                <th>HITS WITH ERRORS</th>
-                <th>%ERRORS</th>
-                <th>DATA QUALITY</th>
+                <th className="align-left">EVENT</th>
+                <th className="align-right">HITS</th>
+                <th className="align-right">HITS WITH ERRORS</th>
+                <th className="align-right">%ERRORS</th>
+                <th className="align-left">DATA QUALITY</th>
               </tr>
             </thead>
             <tbody>
@@ -146,6 +132,7 @@ function MainContent() {
 
       {/* Analyse des paramètres */}
       <div className="content-section" style={{ marginTop: 36 }}>
+      <div className="event-stats-table-wrapper">
         <div className="section-header" style={{ marginBottom: 8 }}>
           <h2 style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.18rem', fontWeight: 700, color: '#2d204a', margin: 0 }}>Analyse des paramètres</h2>
         </div>
@@ -155,7 +142,9 @@ function MainContent() {
               style={{ borderLeft: `6px solid ${param.status === 'Critique' ? '#ef4444' : param.status === 'Attention' ? '#f59e42' : param.status === 'Warning' ? '#fbbf24' : '#10b981'}` }}>
               <div className="param-main">
                 <span className={`param-name ${param.status.toLowerCase()}`}>{param.param_name}</span>
-                <span className={`param-type-badge ${param.param_type.toLowerCase()}`}>{param.param_type === 'User' ? 'User' : 'Event'}</span>
+                <span className={`param-type-badge ${param.param_name === 'user_id' ? 'User' : (param.param_type === 'User' ? 'User' : 'Event')}`}>
+                  {param.param_name === 'user_id' ? 'User' : (param.param_type === 'User' ? 'User' : 'Event')}
+                </span>
               </div>
               <div className="param-bar-container">
                 <div className="param-bar-bg">
@@ -171,6 +160,7 @@ function MainContent() {
               <div className={`param-status-badge ${param.status.toLowerCase()}`}>{param.status}</div>
             </div>
           ))}
+        </div>
         </div>
       </div>
 
@@ -240,7 +230,7 @@ function MainContent() {
         .stat-card.highlight { border-top: 5px solid #817EE1; }
         .stat-card.info { border-top: 5px solid #817EE1; }
         .trend-indicator.negative {
-          background: #fee2e2;
+          background:rgb(184, 12, 12);
           color: #ef4444;
           border-radius: 12px;
           padding: 2px 10px;
@@ -277,7 +267,7 @@ function MainContent() {
           margin: 0;
         }
         .event-stats-table-wrapper {
-          background: #fff;
+          background: rgb(243, 241, 247);
           border-radius: 16px;
           box-shadow: 0 2px 12px rgba(30, 60, 90, 0.06);
           padding: 24px;
@@ -437,11 +427,11 @@ function MainContent() {
         .param-status-badge.warning { background: #fbbf24; color: #92400e; }
         .param-status-badge.bon { background: #10b981; }
         [data-theme="dark"] .main-content {
-          background: #181028;
+          background: #1d0a41;
           color: #E1D5F5;
         }
         [data-theme="dark"] .stat-card {
-          background: #231a3a;
+          background: #675191;
           color: #E1D5F5;
           box-shadow: 0 2px 12px rgba(30, 60, 90, 0.12);
           border-top-color: #7c3aed;
@@ -455,7 +445,7 @@ function MainContent() {
           min-height: 50px;
         }
         [data-theme="dark"] .stat-card-value {
-          color: #E1D5F5;
+          color:rgb(255, 255, 255);
           font-size: 1.7rem;
           font-variant-numeric: tabular-nums;
         }
@@ -467,30 +457,41 @@ function MainContent() {
           color: #E1D5F5;
           box-shadow: 0 2px 8px rgba(103, 58, 183, 0.15);
         }
+        [data-theme="dark"] .section-header h2 {
+          color: #fff !important;
+          font-size: 1.35rem;
+        }
         [data-theme="dark"] .event-stats-table-wrapper {
-          background: #231a3a;
-          box-shadow: 0 2px 12px rgba(103, 58, 183, 0.12);
+          background: #4c386f !important;
+        }
+        [data-theme="dark"] .event-stats-table {
+          background: #634e8b;
         }
         [data-theme="dark"] .event-stats-table th {
-          background: #2d204a;
-          color: #B39DDB;
-          border-bottom: 2px solid #3b2c5a;
+          background: #634e8b;
+          color: #fff;
+          border-bottom: 2px solid #b09ed2;
         }
         [data-theme="dark"] .event-stats-table td {
-          color: #E1D5F5;
+          color: #fff;
         }
-        [data-theme="dark"] .event-stats-table tbody tr {
-          border-bottom: 1px solid #3b2c5a;
+        [data-theme="dark"] .event-stats-table tbody tr.even-row {
+          background: #b09ed2;
+          color: #181028;
         }
         [data-theme="dark"] .event-stats-table tbody tr:hover {
-          background: #2d204a;
+          background: #b09ed2;
+          color: #181028;
         }
         [data-theme="dark"] .event-stats-table .event-name {
-          color: #a5b4fc;
+          color: #fff;
+        }
+        [data-theme="dark"] .event-stats-table .number {
+          color: #fff;
         }
         [data-theme="dark"] .quality-badge {
-          background: #2d204a;
-          color: #B39DDB;
+          background: #b09ed2;
+          color: #181028;
         }
         [data-theme="dark"] .quality-badge.good {
           background: #134e4a;
@@ -527,6 +528,21 @@ function MainContent() {
         }
         .mood-emoji {
           transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+        }
+        .event-stats-table th.align-left {
+          text-align: left;
+        }
+        .event-stats-table th.align-right {
+          text-align: right;
+        }
+        [data-theme="dark"] .main-content h1 {
+          color: #fff !important;
+        }
+        [data-theme="dark"] .main-content > div > div {
+          color: #fff !important;
+        }
+        [data-theme="dark"] .main-content h2 {
+          color: #fff !important;
         }
       `}</style>
     </div>

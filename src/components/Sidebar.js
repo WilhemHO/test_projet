@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import '../CSS/sidebar.css';
+import { FaSun, FaMoon } from 'react-icons/fa';
 
-function Sidebar() {
+function Sidebar({ darkMode, toggleDarkMode }) {
   const [profilePhoto, setProfilePhoto] = useState(
     localStorage.getItem('profilePhoto') || 
     'https://www.anecdote-du-jour.com/wp-content/images/2009/02/homer-simpson-mg.jpg'
@@ -38,19 +39,26 @@ function Sidebar() {
       </div>
       
       <div className="sidebar-content">
-        <div className="user-profile">
-          <div 
-            className="user-avatar"
-            style={{ 
-              backgroundImage: `url(${profilePhoto})`, 
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          ></div>
-          <div className="user-info">
-            <div className="user-name">Hamis</div>
-            <div className="user-role">Admin</div>
+        <div className="user-profile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div 
+              className="user-avatar"
+              style={{ 
+                backgroundImage: `url(${profilePhoto})`, 
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                width: 48,
+                height: 48,
+                borderRadius: '50%'
+              }}
+            ></div>
+            <div className="user-info" style={{ marginLeft: 12 }}>
+              <div className="user-role">Admin</div>
+            </div>
           </div>
+          <button onClick={toggleDarkMode} style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 16, fontSize: 22 }} aria-label="Toggle theme">
+            {darkMode ? <FaSun className="sidebar-sunmoon" color="#FFD600" /> : <FaMoon color="#888" />}
+          </button>
         </div>
         
         <div className="menu-section">

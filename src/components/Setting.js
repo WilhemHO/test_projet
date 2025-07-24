@@ -73,7 +73,7 @@ function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
         </div>
         <div className="profile-info">
           <h2>{user.displayName || 'Utilisateur'}</h2>
-          <p>{user.email || 'email@exemple.com'}</p>
+          <p>{user.email || localStorage.getItem('userEmail') || 'email@exemple.com'}</p>
         </div>
       </div>
 
@@ -90,9 +90,6 @@ function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
 
         <div className="settings-group">
           <h3>Compte</h3>
-          <button className="settings-button">
-            🔄 Changer de compte
-          </button>
           <button 
             onClick={handleLogout} 
             className="settings-button logout"

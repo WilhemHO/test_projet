@@ -3,6 +3,7 @@ import { Chart } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 import '../CSS/TrackingPlanHealth.css';
 import DateRangeDropdown from './DateRangeDropdown';
+import { useCache } from "./CacheContext";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
@@ -45,12 +46,41 @@ const TrackingPlanHealth = () => {
   const [stats, setStats] = useState(null);
   const [pagination, setPagination] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [darkMode, setDarkMode] = useState(false);
+  const { getCacheData, setCacheData } = useCache();
+
+  useEffect(() => {
+    // Détecte le mode sombre à chaque rendu
+    const checkDark = () => {
+      setDarkMode(document.documentElement.getAttribute('data-theme') === 'dark');
+    };
+    checkDark();
+    window.addEventListener('storage', checkDark);
+    // Optionnel : écoute les changements de thème système
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener('change', checkDark);
+    return () => {
+      window.removeEventListener('storage', checkDark);
+      mq.removeEventListener('change', checkDark);
+    };
+  }, []);
 
   useEffect(() => {
     if (!dateRange.start || !dateRange.end) return;
     setLoading(true);
     setError(null);
-    fetch(`http://localhost:4000/api/tracking?start=${dateRange.start}&end=${dateRange.end}`)
+    const cacheKey = `trackingData_${dateRange.start}_${dateRange.end}_${currentPage}`;
+    const cached = getCacheData(cacheKey);
+    if (cached) {
+      setEventErrors(cached.eventErrors);
+      setErrorDetails(cached.errorDetails);
+      setChartData(cached.chartData);
+      setStats(cached.stats);
+      setPagination(cached.pagination);
+      setLoading(false);
+      return;
+    }
+    fetch(`http://localhost:4000/api/tracking?start=${dateRange.start}&end=${dateRange.end}&page=${currentPage}`)
       .then(res => {
         if (!res.ok) throw new Error('Erreur lors du chargement des données');
         return res.json();
@@ -61,6 +91,13 @@ const TrackingPlanHealth = () => {
         setChartData((data.data && data.data.chartData) || []);
         setStats(data.data && data.data.stats);
         setPagination(data.data && data.data.pagination);
+        setCacheData(cacheKey, {
+          eventErrors: (data.data && data.data.trackingPlan) || [],
+          errorDetails: (data.data && data.data.eventsDetail) || [],
+          chartData: (data.data && data.data.chartData) || [],
+          stats: data.data && data.data.stats,
+          pagination: data.data && data.data.pagination
+        });
         setLoading(false);
       })
       .catch(err => {
@@ -117,10 +154,10 @@ const TrackingPlanHealth = () => {
         yAxisID: 'y1',
         tension: 0.3,
         fill: false,
-        pointRadius: 6,
+        pointRadius: 0, // plus de points ronds
         pointBackgroundColor: '#fff',
         pointBorderColor: '#b97be6',
-        pointHoverRadius: 8,
+        pointHoverRadius: 0, // plus d'effet au survol
         pointStyle: 'circle',
       }
     ]
@@ -133,7 +170,7 @@ const TrackingPlanHealth = () => {
         display: true,
         position: 'top',
         labels: {
-          color: '#2d225a',
+          color: darkMode ? '#E1D5F5' : '#2d225a',
           font: { size: 18, family: 'inherit', weight: 'bold' }
         }
       },
@@ -143,6 +180,11 @@ const TrackingPlanHealth = () => {
       tooltip: {
         mode: 'index',
         intersect: false,
+        backgroundColor: darkMode ? '#3b2562' : '#fff',
+        titleColor: darkMode ? '#fff' : '#2d225a',
+        bodyColor: darkMode ? '#fff' : '#2d225a',
+        borderColor: darkMode ? '#a78bfa' : '#ede9fe',
+        borderWidth: 1,
         callbacks: {
           label: function(context) {
             if (context.dataset.label === 'Total events') {
@@ -158,7 +200,7 @@ const TrackingPlanHealth = () => {
       x: {
         title: { display: false },
         ticks: {
-          color: '#2d225a',
+          color: darkMode ? '#E1D5F5' : '#2d225a',
           font: { size: 14 },
           maxRotation: 45,
           minRotation: 45,
@@ -172,6 +214,7 @@ const TrackingPlanHealth = () => {
             return String(dateStr);
           }
         },
+        grid: { color: darkMode ? '#4b2e7a' : '#eee' },
       },
       y: {
         type: 'linear',
@@ -179,11 +222,11 @@ const TrackingPlanHealth = () => {
         position: 'left',
         title: { display: false },
         ticks: {
-          color: '#2d225a',
+          color: darkMode ? '#E1D5F5' : '#2d225a',
           font: { size: 14 },
           callback: value => value >= 1000 ? `${value/1000}k` : value
         },
-        grid: { color: '#eee' },
+        grid: { color: darkMode ? '#4b2e7a' : '#eee' },
         suggestedMax: maxTotalEvents > 200000 ? Math.ceil(maxTotalEvents * 1.1 / 10000) * 10000 : undefined,
         max: maxTotalEvents > 200000 ? Math.ceil(maxTotalEvents * 1.1 / 10000) * 10000 : undefined,
       },
@@ -195,7 +238,7 @@ const TrackingPlanHealth = () => {
         max: 100,
         title: { display: false },
         ticks: {
-          color: '#b97be6',
+          color: darkMode ? '#b97be6' : '#b97be6',
           font: { size: 14 },
           callback: value => `${value}%`
         },

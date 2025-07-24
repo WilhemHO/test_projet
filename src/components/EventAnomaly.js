@@ -12,6 +12,7 @@ import {
   Legend
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { useCache } from "./CacheContext";
 
 ChartJS.register(
   CategoryScale,
@@ -46,12 +47,25 @@ const EventAnomaly = () => {
   const [availableEvents, setAvailableEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('all');
   const [chartData, setChartData] = useState([]);
+  const [pageSize, setPageSize] = useState(10);
+  const { getCacheData, setCacheData } = useCache();
 
   useEffect(() => {
     setLoading(true);
+    const cacheKey = `anomalyData_${page}_${range.start}_${range.end}_${selectedEvent}_${pageSize}`;
+    const cached = getCacheData(cacheKey);
+    if (cached) {
+      setAnomalyData(cached.anomalyData);
+      setTotalPages(cached.totalPages);
+      setStats(cached.stats);
+      setAvailableEvents(cached.availableEvents);
+      setChartData(cached.chartData);
+      setLoading(false);
+      return;
+    }
     const params = new URLSearchParams({
       page: page.toString(),
-      pageSize: PAGE_SIZE.toString(),
+      pageSize: pageSize.toString(),
       start: range.start,
       end: range.end,
       event: selectedEvent
@@ -64,13 +78,20 @@ const EventAnomaly = () => {
         setStats(json.data?.stats || { totalEvents: 0, normalEvents: 0, totalAnomalies: 0, uniqueEventTypes: 0 });
         setAvailableEvents(json.data?.availableEvents || []);
         setChartData(json.data?.chartData || []);
+        setCacheData(cacheKey, {
+          anomalyData: json.data?.events || [],
+          totalPages: json.data?.pagination?.totalPages || 1,
+          stats: json.data?.stats || { totalEvents: 0, normalEvents: 0, totalAnomalies: 0, uniqueEventTypes: 0 },
+          availableEvents: json.data?.availableEvents || [],
+          chartData: json.data?.chartData || []
+        });
         setLoading(false);
       })
       .catch(() => {
         setError("Erreur lors du chargement des anomalies");
         setLoading(false);
       });
-  }, [page, range, selectedEvent]);
+  }, [page, range, selectedEvent, pageSize]);
 
   if (loading) return <div>Chargement des anomalies...</div>;
   if (error) return <div>{error}</div>;
@@ -135,23 +156,23 @@ const EventAnomaly = () => {
       <div className="section">
         <h2>Anomaly Detection</h2>
         <div className="metrics-grid">
-          <div className="metric-card" style={{ background: '#f4f6ff' }}>
-            <div style={{ fontWeight: 'bold', color: '#4b2996', marginBottom: 8 }}>ÉVÉNEMENTS ANALYSÉS</div>
-            <div style={{ fontSize: 36, fontWeight: 'bold', color: '#4b2996' }}>{stats.totalEvents}</div>
+          <div className="metric-card">
+            <div className="metric-title">ÉVÉNEMENTS ANALYSÉS</div>
+            <div className="metric-value">{stats.totalEvents}</div>
           </div>
-          <div className="metric-card" style={{ background: '#f4f6ff' }}>
-            <div style={{ fontWeight: 'bold', color: '#4b2996', marginBottom: 8 }}>ÉVÉNEMENTS NORMAUX</div>
-            <div style={{ fontSize: 36, fontWeight: 'bold', color: '#4b2996' }}>{stats.normalEvents}</div>
-            <div style={{ color: '#4b2996', fontSize: 14 }}>{normalPercent}% du total</div>
+          <div className="metric-card">
+            <div className="metric-title">ÉVÉNEMENTS NORMAUX</div>
+            <div className="metric-value">{stats.normalEvents}</div>
+            <div className="metric-subvalue">{normalPercent}% du total</div>
           </div>
-          <div className="metric-card" style={{ background: '#f4f6ff' }}>
-            <div style={{ fontWeight: 'bold', color: '#4b2996', marginBottom: 8 }}>ANOMALIES DÉTECTÉES</div>
-            <div style={{ fontSize: 36, fontWeight: 'bold', color: '#4b2996' }}>{stats.totalAnomalies}</div>
-            <div style={{ color: '#4b2996', fontSize: 14 }}>{anomalyPercent}% du total</div>
+          <div className="metric-card">
+            <div className="metric-title">ANOMALIES DÉTECTÉES</div>
+            <div className="metric-value">{stats.totalAnomalies}</div>
+            <div className="metric-subvalue">{anomalyPercent}% du total</div>
           </div>
-          <div className="metric-card" style={{ background: '#f8f4ff' }}>
-            <div style={{ fontWeight: 'bold', color: '#4b2996', marginBottom: 8 }}>TYPES D'ÉVÉNEMENTS</div>
-            <div style={{ fontSize: 36, fontWeight: 'bold', color: '#4b2996' }}>{stats.uniqueEventTypes}</div>
+          <div className="metric-card">
+            <div className="metric-title">TYPES D'ÉVÉNEMENTS</div>
+            <div className="metric-value">{stats.uniqueEventTypes}</div>
           </div>
         </div>
       </div>
@@ -228,7 +249,23 @@ const EventAnomaly = () => {
       
       {/* Section Tableau des anomalies */}
       <div className="section">
-        <h2>Détails des anomalies</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h2 style={{ margin: 0 }}>Détails des anomalies</h2>
+          <div>
+            <label htmlFor="page-size-select" style={{ marginRight: 8, fontWeight: 500 }}>Éléments par page :</label>
+            <select
+              id="page-size-select"
+              value={pageSize}
+              onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+              style={{ padding: '6px 12px', borderRadius: 6, border: '1.5px solid #e5e7eb', fontWeight: 600 }}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+            </select>
+          </div>
+        </div>
         <table className="data-table">
           <thead>
             <tr>

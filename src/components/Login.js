@@ -25,6 +25,7 @@ function Login() {
       if (res.ok && data.success) {
         setSuccess(true);
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userEmail', email);
         setError('');
         setTimeout(() => {
           navigate('/');

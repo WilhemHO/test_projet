@@ -140,4 +140,97 @@ body {
       max-width: 700px;
     }
   }
-  
+
+[data-theme="dark"] .styled-table {
+  background: #3b2c5a;
+  color: #e1d5f5;
+}
+
+[data-theme="dark"] .styled-table th {
+  background: #2d204a;
+  color: #fff;
+  border-bottom: 2px solid #6d5a99;
+}
+
+[data-theme="dark"] .styled-table td {
+  color: #e1d5f5;
+}
+
+[data-theme="dark"] .styled-table tr:nth-child(even) {
+  background-color: #6d5a99;
+}
+
+[data-theme="dark"] .styled-table tr:nth-child(odd) {
+  background-color: #5a4780;
+}
+
+[data-theme="dark"] .styled-table tr:hover {
+  background-color: #7c6bb3;
+}
+
+[data-theme="dark"] .styled-table .attention {
+  color: #ef4444;
+}
+
+[data-theme="dark"] .section {
+  background: #4c386f;
+}
+
+[data-theme="dark"] .overview-box {
+  background: #4c386f;
+}
+
+[data-theme="dark"] .overview-card {
+  background: #675191;
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] .dashboard {
+  background: #1d0a41 !important;
+}
+
+[data-theme="dark"] .dashboard-title,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .section-subtitle,
+[data-theme="dark"] .overview-box,
+[data-theme="dark"] .overview-card,
+[data-theme="dark"] .styled-table,
+[data-theme="dark"] .styled-table th,
+[data-theme="dark"] .styled-table td,
+[data-theme="dark"] .last-updated,
+[data-theme="dark"] .loading,
+[data-theme="dark"] .error,
+[data-theme="dark"] a,
+[data-theme="dark"] .page-location-url {
+  color: #fff !important;
+}
+
+[data-theme="dark"] span,
+[data-theme="dark"] strong {
+  color: #fff !important;
+}
+
+[data-theme="dark"] svg:not(.sidebar-sunmoon),
+[data-theme="dark"] svg:not(.sidebar-sunmoon) * {
+  stroke: #fff !important;
+  fill: #1a0033;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid #bbb;
+  border-radius: 4px;
+  background: rgba(245, 245, 245, 0.3);
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+  padding: 0;
+}
+.icon-btn:hover, .icon-btn:focus {
+  box-shadow: 0 0 0 2px #b3d4fc;
+  border-color: #1976d2;
+  background: rgba(227, 242, 253, 0.5);
+}

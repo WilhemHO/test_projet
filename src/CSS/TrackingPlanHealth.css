@@ -196,3 +196,75 @@ h1, h2, h3, h4, h5, h6 {
     min-width: 0;
   }
 }
+
+/* Dark mode */
+[data-theme="dark"] .tracking-root {
+  background: #1d0a41 !important;
+  color: #E1D5F5 !important;
+}
+[data-theme="dark"] .tracking-header h1 {
+  color: #fff !important;
+}
+[data-theme="dark"] .tracking-period {
+  color: #a78bfa !important;
+}
+[data-theme="dark"] .tracking-global-stats {
+  background: #33085c !important;
+  color: #E1D5F5 !important;
+}
+[data-theme="dark"] .tracking-global-stats span {
+  color: #a78bfa !important;
+}
+[data-theme="dark"] .tracking-card {
+  background: #4b2e7a !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .tracking-table {
+  background: #7c6bb3 !important;
+  color: #fff !important;
+  border-radius: 16px;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .tracking-table th {
+  background: #675191 !important;
+  color: #fff !important;
+  border-bottom: none !important;
+}
+[data-theme="dark"] .tracking-table td {
+  color: #fff !important;
+  border-bottom: none !important;
+}
+[data-theme="dark"] .tracking-table tr:nth-child(even) {
+  background-color: #675191 !important;
+}
+[data-theme="dark"] .tracking-table tr:nth-child(odd) {
+  background-color: #7c6bb3 !important;
+}
+[data-theme="dark"] .tracking-table tr:hover {
+  background-color: #5a388d !important;
+}
+[data-theme="dark"] .status-ok {
+  color: #22d3ee !important;
+}
+[data-theme="dark"] .status-warning {
+  color: #fbbf24 !important;
+}
+[data-theme="dark"] .status-error,
+[data-theme="dark"] .status-indicator.status-error {
+  color: #ef4444 !important;
+}
+[data-theme="dark"] .status-indicator.status-ok {
+  color: #22d3ee !important;
+}
+[data-theme="dark"] .tracking-graph {
+  background: #3b2562 !important;
+}
+[data-theme="dark"] .tracking-pagination button {
+  background: #4b2e7a !important;
+  color: #fff !important;
+}
+[data-theme="dark"] .tracking-pagination button:disabled {
+  background: #3b2562 !important;
+  color: #7c6bb3 !important;
+}
