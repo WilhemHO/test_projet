@@ -6,13 +6,11 @@ function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
     setSuccess(false);
     try {
@@ -35,8 +33,6 @@ function Login() {
       }
     } catch (err) {
       setError('Erreur réseau');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -53,7 +49,6 @@ function Login() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              disabled={isLoading}
               style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #e5e7eb', fontSize: 16 }}
               placeholder="Votre email"
             />
@@ -66,7 +61,6 @@ function Login() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
                 style={{ width: '100%', padding: '10px 38px 10px 12px', borderRadius: 10, border: '1px solid #e5e7eb', fontSize: 16 }}
                 placeholder="Votre mot de passe"
               />
@@ -77,8 +71,8 @@ function Login() {
           </div>
           {error && <div style={{ color: '#ef4444', background: '#fee2e2', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontWeight: 500 }}>{error}</div>}
           {success && <div style={{ color: '#10b981', background: '#dcfce7', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontWeight: 500 }}>Connexion réussie !</div>}
-          <button type="submit" disabled={isLoading} style={{ width: '100%', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 0', fontWeight: 700, fontSize: 17, cursor: isLoading ? 'not-allowed' : 'pointer', marginTop: 8 }}>
-            {isLoading ? 'Connexion...' : 'Se connecter'}
+          <button type="submit" style={{ width: '100%', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 0', fontWeight: 700, fontSize: 17, cursor: 'pointer', marginTop: 8 }}>
+            Se connecter
           </button>
         </form>
         <div style={{ textAlign: 'center', marginTop: 18, color: '#bdb6d5', fontSize: 14 }}>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import DateRangePicker from './DateRangePicker';
 import DateRangeDropdown from './DateRangeDropdown';
 import { useCache } from "./CacheContext";
+import Loader from './Loader';
 
 function MainContent() {
   const [metrics, setMetrics] = useState(null);
@@ -47,7 +48,7 @@ function MainContent() {
       });
   }, [dateRange]);
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <Loader text="Chargement des données..." />;
   if (error) return <div>{error}</div>;
   if (!metrics) return <div>Aucune donnée à afficher.</div>;
 

@@ -6,7 +6,7 @@ function Setting({ darkMode, toggleDarkMode, user = {}, onLogout }) {
   const [profilePhoto, setProfilePhoto] = useState(
     localStorage.getItem('profilePhoto') || 
     user.photoURL || 
-    'https://www.anecdote-du-jour.com/wp-content/images/2009/02/homer-simpson-mg.jpg'
+    'https://static.vecteezy.com/ti/vecteur-libre/p1/24293032-illustration-de-utilisateur-icone-dans-gris-couleur-vectoriel.jpg'
   );
   const navigate = useNavigate();
 

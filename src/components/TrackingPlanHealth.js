@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend ,BarController,LineController} from 'chart.js';
 import '../CSS/TrackingPlanHealth.css';
 import DateRangeDropdown from './DateRangeDropdown';
 import { useCache } from "./CacheContext";
+import Loader from './Loader';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend,BarController,LineController);
 
 // Fonction utilitaire pour formater les dates à la française
 function formatDate(dateStr) {
@@ -247,7 +248,7 @@ const TrackingPlanHealth = () => {
     }
   };
 
-  if (loading) return <div>Chargement des données...</div>;
+  if (loading) return <Loader text="Chargement des données..." />;
   if (error) return <div style={{color: 'red'}}>Erreur : {error}</div>;
 
   return (

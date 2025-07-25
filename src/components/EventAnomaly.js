@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useCache } from "./CacheContext";
+import Loader from './Loader';
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +34,18 @@ function getDefaultRange() {
   startDate.setDate(startDate.getDate() - 30);
   const start = startDate.toISOString().split('T')[0];
   return { start, end };
+}
+
+// Ajout de la fonction utilitaire pour générer toutes les dates entre deux bornes
+function getDateRangeArray(start, end) {
+  const arr = [];
+  let dt = new Date(start);
+  const endDt = new Date(end);
+  while (dt <= endDt) {
+    arr.push(dt.toISOString().split('T')[0]);
+    dt.setDate(dt.getDate() + 1);
+  }
+  return arr;
 }
 
 const EventAnomaly = () => {
@@ -93,7 +106,7 @@ const EventAnomaly = () => {
       });
   }, [page, range, selectedEvent, pageSize]);
 
-  if (loading) return <div>Chargement des anomalies...</div>;
+  if (loading) return <Loader text="Chargement des anomalies..." />;
   if (error) return <div>{error}</div>;
 
   // Calcul pourcentage
@@ -202,49 +215,64 @@ const EventAnomaly = () => {
             </select>
           </div>
         </div>
-        <div style={{ height: 400, width: '100%' }}>
-          <Line
-            data={{
-              labels: chartData.map(row => row.event_date),
-              datasets: [
-                {
-                  label: "Event Count",
-                  data: chartData.map(row => row.total_events),
-                  borderColor: '#a78bfa',
-                  backgroundColor: 'rgba(167, 139, 250, 0.15)',
-                  tension: 0.4,
-                  fill: true,
-                  pointBackgroundColor: '#a78bfa',
-                  pointRadius: 5,
-                },
-                {
-                  label: 'Anomaly Info',
-                  data: chartData.map(row => row.anomaly_events),
-                  borderColor: '#ef4444',
-                  backgroundColor: 'rgba(239, 68, 68, 0.10)',
-                  borderDash: [6, 6],
-                  pointBackgroundColor: '#ef4444',
-                  pointRadius: 6,
-                  fill: false,
-                  spanGaps: true,
-                }
-              ]
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { position: 'bottom' },
-                title: { display: false },
-                tooltip: { mode: 'index', intersect: false }
-              },
-              interaction: { mode: 'nearest', axis: 'x', intersect: false },
-              scales: {
-                x: { title: { display: false } },
-                y: { title: { display: false }, beginAtZero: true }
-              }
-            }}
-          />
-        </div>
+        {/* Génération de la liste complète des dates et fusion avec chartData */}
+        {(() => {
+          const allDates = getDateRangeArray(range.start, range.end);
+          const chartDataMap = {};
+          chartData.forEach(row => {
+            chartDataMap[row.event_date] = row;
+          });
+          const completeChartData = allDates.map(date => ({
+            event_date: date,
+            total_events: chartDataMap[date]?.total_events || 0,
+            anomaly_events: chartDataMap[date]?.anomaly_events || 0,
+          }));
+          return (
+            <div style={{ height: 400, width: '100%' }}>
+              <Line
+                data={{
+                  labels: completeChartData.map(row => row.event_date),
+                  datasets: [
+                    {
+                      label: "Event Count",
+                      data: completeChartData.map(row => row.total_events),
+                      borderColor: '#a78bfa',
+                      backgroundColor: 'rgba(167, 139, 250, 0.15)',
+                      tension: 0.4,
+                      fill: true,
+                      pointBackgroundColor: '#a78bfa',
+                      pointRadius: 5,
+                    },
+                    {
+                      label: 'Anomaly Info',
+                      data: completeChartData.map(row => row.anomaly_events),
+                      borderColor: '#ef4444',
+                      backgroundColor: 'rgba(239, 68, 68, 0.10)',
+                      borderDash: [6, 6],
+                      pointBackgroundColor: '#ef4444',
+                      pointRadius: 6,
+                      fill: false,
+                      spanGaps: true,
+                    }
+                  ]
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: false },
+                    tooltip: { mode: 'index', intersect: false }
+                  },
+                  interaction: { mode: 'nearest', axis: 'x', intersect: false },
+                  scales: {
+                    x: { title: { display: false } },
+                    y: { title: { display: false }, beginAtZero: true }
+                  }
+                }}
+              />
+            </div>
+          );
+        })()}
       </div>
       
       {/* Section Tableau des anomalies */}

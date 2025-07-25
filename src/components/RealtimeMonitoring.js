@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../CSS/RealtimeMonitoring.css";
 import { useCache } from "./CacheContext";
+import Loader from './Loader';
 
 const RealtimeMonitoring = () => {
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,7 @@ const RealtimeMonitoring = () => {
     return "Need Attention";
   };
 
-  if (loading) return <div className="loading">Chargement des données...</div>;
+  if (loading) return <Loader text="Chargement des données..." />;
   if (error) return <div className="error">Erreur : {error}</div>;
   if (!data) return null;
 
@@ -119,7 +120,7 @@ const RealtimeMonitoring = () => {
           Si il est avant 12h alors on récupère les données de J-1 et J. Si il est après 12h alors on récupère uniquement les données de J.
         </div>
       )}
-
+      <br />
       <div className="overview-box">
         <h2 className="section-subtitle">Overview</h2>
         <p>

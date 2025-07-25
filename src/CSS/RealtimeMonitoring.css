@@ -16,10 +16,11 @@ body {
   }
   
   .dashboard-title {
-    font-size: 1.5rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: #301a67;
     margin-bottom: 30px;
+    font-family: 'Bebas Neue', cursive;
   }
   
   .section {
@@ -233,4 +234,44 @@ body {
   box-shadow: 0 0 0 2px #b3d4fc;
   border-color: #1976d2;
   background: rgba(227, 242, 253, 0.5);
+}
+
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f2ebfc;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #4c2885;
+  box-shadow: 0 2px 6px rgba(76, 40, 133, 0.07);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s;
+  outline: none;
+}
+
+.refresh-btn:hover, .refresh-btn:focus {
+  background: #e3d8fa;
+  color: #301a67;
+  box-shadow: 0 4px 12px rgba(76, 40, 133, 0.13);
+  transform: translateY(-1px) scale(1.03);
+}
+
+.refresh-btn svg {
+  transition: transform 0.5s cubic-bezier(.4,2,.6,1), color 0.18s;
+  color: #4c2885;
+}
+
+.refresh-btn:hover svg, .refresh-btn:focus svg {
+  transform: rotate(-360deg);
+  color: #301a67;
+}
+
+.refresh-text {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
 }
