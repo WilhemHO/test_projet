@@ -58,7 +58,7 @@ créez un fichier `.env` dans `backend/` :
 
 ```
 GOOGLE_CLOUD_PROJECT : ID de votre projet Google Cloud.
-GOOGLE_APPLICATION_CREDENTIALS=./credentials.json
+GOOGLE_APPLICATION_CREDENTIALS_JSON= credentials.json
 BIGQUERY_DATASET : Nom du dataset BigQuery à utiliser pour les requêtes.
 
 ```
