@@ -5,7 +5,7 @@ Ce projet est une application web développée avec React (Create React App) et 
 ## 🚀 Version en ligne
 
 La version en ligne du projet est accessible sur Vercel :
-➡️ [template-hanal.vercel.app](template-tracking-prod.vercel.app)
+➡️ [https://template-tracking-prod.vercel.app](https://template-tracking-prod.vercel.app)
 
 Le code source de la version en ligne est disponible ici :
 ➡️ [https://github.com/data-hanalytics-io/template_tracking_prod.git](https://github.com/data-hanalytics-io/template_tracking_prod.git)
